@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
     <extension version="3.1" type="plugin" group="content" method="upgrade">
-        <name>TabT Competition Info v1.2</name>
+        <name>TabT Competition Info v2.0</name>
         <author>Tom Van Aken</author>
-        <creationDate>June 10th, 2016</creationDate>
+        <creationDate>September 11th, 2017</creationDate>
         <copyright>Tom Van Aken</copyright>
         <license>GNU General Public License</license>
         <authorUrl>http://www.ttc-leugenberg.be</authorUrl>
@@ -10,6 +10,7 @@
         <description>TabT plugin, gebruik TabT informatie op uw website</description>
         <files>
             <filename plugin="tabt">tabt.php</filename>
+            <filename>tabt_data.php</filename> 
             <filename>tabt_helper.php</filename>
             <filename>css/tabt.css</filename>
             <filename>index.html</filename>
@@ -22,17 +23,7 @@
                         <option value="vttl">VTTL</option>
                     </field>
                     <field name="clubId" type="text" default="" label="Club Id" description="Geef het clubid op zoals gekend bij de federatie." />
-
-                    <field name="ranking" type="list" default="5" label="Sortering" description="Geef de standaard sortering voor de rangschikking op.">
-                        <option value="6">VTTL Seniors</option>
-                        <option value="5">Sporta Seniors</option>
-                        <option value="4">Individuele overwinningen</option>
-                        <option value="2">Pingouin Leuven</option>
-                        <option value="3">4 punten systeem</option>
-                        <option value="1">VTTL Seniors pre 2009</option>
-                    </field>
                 </fieldset>
             </fields>
-
         </config>
     </extension>
