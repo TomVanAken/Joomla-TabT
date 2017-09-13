@@ -1,0 +1,55 @@
+.tabtRanking .myTeam,
+.tabtCalendar .myTeam {
+    font-weight: bold;
+    color: red;
+}
+
+div.tabtRanking {
+    padding-bottom: 10px;
+}
+
+.tabtCalendar table {
+    max-width: 500px;
+}
+
+.tabtRanking .cPos,
+.tabtRanking .cPlayed,
+.tabtRanking .cPoints,
+.tabtCalendar .cPos {
+    width: 40px;
+}
+
+.tabtRanking th,
+.tabtCalendar th {
+    text-align: left;
+}
+
+.tabtRanking .cTeam,
+.tabtCalendar .cTeam {
+    width: 200px;
+}
+
+.tabtCalendar .cRes {
+    width: 50px;
+}
+
+.tabtRanking td.cPoints,
+.tabtRanking th.cPoints,
+.tabtCalendar .cRes {
+    text-align: right;
+}
+
+.tabtRanking table {
+    font-size: 1.1em;
+}
+
+.tabtRanking th,
+.tabtCalendar th {
+    color: #555555;
+    font-weight: bold;
+}
+
+.tabtRanking .week {
+    font-weight: bold;
+    color: darkslategrey;
+}
