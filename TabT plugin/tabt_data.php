@@ -1,4 +1,7 @@
 <?php
+
+defined('_JEXEC') or die;
+
 /**
 * Helper class for TabT module
 *
@@ -22,6 +25,8 @@ class TabTDataRetrieval
   private $clubName;
   private $divisionId;
   private $divisionName;
+    
+  private $weekName;
 
 
 
@@ -42,9 +47,11 @@ class TabTDataRetrieval
     //Retrieve team information
     $this->teamName = $this->clubName.' '.$this->teamLetter;
 
+    //Get Club Teams
     $teamResponse = $this->soapTabT->GetClubTeams(
       array('Club'  => $this->clubId));
 
+    //Loop through teams to retrieve division information of current team
     foreach ($teamResponse->TeamEntries as $teamEntry)
       {
         if($teamEntry->Team==$this->teamLetter) {
@@ -53,6 +60,12 @@ class TabTDataRetrieval
           break;
         }
       }
+      
+    //Get Current week
+    $this->weekName = $this->getCurrentWeek();
+      
+    //Load translations
+    
 
   }
 
@@ -71,9 +84,18 @@ class TabTDataRetrieval
  public function getDivisionId() {
    return $this->divisionId;
  }
+    
+ public function getWeek() {
+     return $this->weekName;
+ }
 
-public functin getRanking() {
-
+public function getRanking($week) {
+    if($week!=0) $this->weekName = $week;
+    //Retrieve Division Name through Division Ranking webservice
+    $rankingResponse = $this->soapTabT->GetDivisionRanking(
+        array('DivisionId'  => $this->divisionId,
+              'WeekName' => $this->weekName));
+    return $rankingResponse->RankingEntries;
 }
 
 
@@ -90,7 +112,30 @@ public functin getRanking() {
     }
   }
 
-}
+ private function getCurrentWeek() {
+        $week = 1;
+        $currenttime = date('Y-m-d');
+        $weekday = date('N', strtotime($currenttime));
+        $currenttime = strtotime($currenttime . ' - '. $weekday .' days');
+        $date = date('Y-m-d', $currenttime);
 
+    
+        $MatchesResponse = $this->soapTabT->GetMatches(
+             array('DivisionId'  => $this->divisionId,
+				'Club' => $this->clubId,
+				'Team' => trim($this->teamLetter)));
+    
+         foreach ($MatchesResponse->TeamMatchesEntries as $matchEntry) {
+                if($matchEntry->Date < $date) {
+                  $week = $matchEntry->WeekName;
+                } else {
+                    break;
+                }
+        }
+
+
+        return $week;
+    }
+}
 
 ?>

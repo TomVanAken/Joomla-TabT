@@ -14,14 +14,17 @@ $document->addStyleSheet(JURI::base() . 'plugins/content/tabt/css/tabt.css');
 class plgContentTabt extends JPlugin
 {
 
-  private $federatie = 'vttl';
+  private $federatie = '';
   private $clubId = '';
+  private $helper;
 
 
   public function __construct(&$subject, $config = array()) {
+    $this->loadLanguage();
     parent::__construct($subject, $config);
     $this->clubId = $this->getPluginValue('clubId', $this->clubId);
     $this->federatie = $this->getPluginValue('federatie', $this->federatie);
+    $this->helper  = new PlgTabTHelper();
   }
 
   function onContentPrepare($context, &$article, &$params, $limitstart) {
@@ -68,37 +71,30 @@ class plgContentTabt extends JPlugin
 
 
 
-  private function getResults($matches) {
+  private function getResults($request) {
     $replacement = "";
 
     //reinitialize
     $this->init();
 
     //get tabt article parameters
-    $this->setParameters($matches[1]);
+    $this->setParameters($request[1]);
 
   }
 
-  private function getRanking($matches) {
-    $replacement = "";
-
-
+  private function getRanking($request) {
     //get tabt article parameters
-    $params = $this->getRequestParameters($matches[1]);
+    $params = $this->getRequestParameters($request[1]);
+    $fed=array_key_exists("fed", $params )?$params["fed"]:$this->federatie;
+    $club=array_key_exists("clubId", $params)?$params["clubId"]:$this->clubId;
+    $team=array_key_exists("team", $params)?$params["team"]:"A";
+    $week=array_key_exists("week", $params)?$params["week"]:0;
 
-    $tabt = new TabTDataRetrieval($this->federatie, $this->clubId, $params["team"]);
-    $replacement = '<div class="tabtRanking">';
-    $replacement .= '<h3>' . $tabt->getDivisionName() . "</h3>";
-    $replacement .= '<span>' . $tabt->getTeamName() . "</span>";
-  //  $replacement .= '<span class="week">Week: '.$tabt->getWeek().'</span>';
-  //  $replacement .= $tabt->getRanking();
-    $replacement .= '</div>';
-
-    return $replacement;
+    return $this->helper->getRanking($fed, $club, $team, $week); 
   }
 
-  private function getRequestParameters($matches) {
-    $params = split(',', $matches);
+  private function getRequestParameters($pattern) {
+    $params = split(',', $pattern);
     foreach ($params as $elem) {
       $array = split("=", $elem);
       $key = trim(strtolower($array[0]));

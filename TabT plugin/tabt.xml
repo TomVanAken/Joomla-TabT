@@ -6,23 +6,29 @@
         <copyright>Tom Van Aken</copyright>
         <license>GNU General Public License</license>
         <authorUrl>http://www.ttc-leugenberg.be</authorUrl>
-        <version>1.2</version>
-        <description>TabT plugin, gebruik TabT informatie op uw website</description>
+        <version>2.0</version>
+        <description>TABT_PLG_INTRO</description>
         <files>
             <filename plugin="tabt">tabt.php</filename>
-            <filename>tabt_data.php</filename> 
+            <filename>tabt_data.php</filename>
             <filename>tabt_helper.php</filename>
             <filename>css/tabt.css</filename>
             <filename>index.html</filename>
         </files>
+        <languages>
+		<language tag="en-GB">en-GB.plg_content_tabt.ini</language>
+		<language tag="nl-NL">nl-NL.plg_content_tabt.ini</language>
+            <language tag="en-GB">en-GB.plg_content_tabt.sys.ini</language>
+		<language tag="nl-NL">nl-NL.plg_content_tabt.sys.ini</language>
+	</languages>
         <config>
             <fields name="params">
                 <fieldset name="basic">
-                    <field name="federatie" type="radio" label="Federatie" default="sporta" description="Selecteer de federatie.">
-                        <option value="sporta">Sporta</option>
-                        <option value="vttl">VTTL</option>
+                    <field name="federatie" type="radio" label="TABT_FED_LABEL" default="TABT_FED_DEFAULT" description="TABT_FED_DESCR">
+                        <option value="sporta">TABT_FED_SPORTA</option>
+                        <option value="vttl">TABT_FED_VTTL</option>
                     </field>
-                    <field name="clubId" type="text" default="" label="Club Id" description="Geef het clubid op zoals gekend bij de federatie." />
+                    <field name="clubId" type="text" default="" label="TABT_CLUBID_LABEL" description="TABT_CLUBID_DESCR" />
                 </fieldset>
             </fields>
         </config>
