@@ -18,11 +18,14 @@ class TabTDataRetrieval
 {
   private $federatie;
   private $clubId;
-  private $teamLetter;
 
   private $soapTabT;
+
+  private $teamLetter;
   private $teamName;
+  private $teamLongName;
   private $clubName;
+  private $clubLongName;
   private $divisionId;
   private $divisionName;
     
@@ -30,10 +33,9 @@ class TabTDataRetrieval
 
 
 
-  public function __construct($fed, $clubId, $teamLetter) {
+  public function __construct($fed, $clubId) {
     $this->federatie = $fed;
     $this->clubId = $clubId;
-    $this->teamLetter = $teamLetter;
 
 
     //Initializing soap client
@@ -42,32 +44,37 @@ class TabTDataRetrieval
     //Retrieve club name
     $clubResponse = $this->soapTabT->GetClubs(
       array('Club'  => $this->clubId));
-    $this->clubName = $clubResponse->ClubEntries->LongName;
-
-    //Retrieve team information
-    $this->teamName = $this->clubName.' '.$this->teamLetter;
-
-    //Get Club Teams
-    $teamResponse = $this->soapTabT->GetClubTeams(
-      array('Club'  => $this->clubId));
-
-    //Loop through teams to retrieve division information of current team
-    foreach ($teamResponse->TeamEntries as $teamEntry)
+    $this->clubLongName = $clubResponse->ClubEntries->LongName;
+    $this->clubName = $clubResponse->ClubEntries->Name;
+  }
+    
+ public function initTeam($divisionId, $teamId) {
+     $this->divisionId = $divisionId;
+     $this->teamLetter = $teamId;
+     $this->teamName = $this->clubName.' '.$this->teamLetter;
+     $this->teamLongName = $this->clubLongName.' '.$this->teamLetter;
+     
+     /**Get division name**/
+     $divisions = $this->soapTabT->GetDivisions(
+      array('ShowDivisionName'  => 'yes'));
+     
+     //Loop through divisions to get names
+    foreach ($divisions->DivisionEntries as $division)
       {
-        if($teamEntry->Team==$this->teamLetter) {
-          $this->divisionId=$teamEntry->DivisionId;
-          $this->divisionName=$teamEntry->DivisionName;
+        if($division->DivisionId==$divisionId) {
+          $this->divisionName=$division->DivisionName;
           break;
         }
       }
-      
-    //Get Current week
-    $this->weekName = $this->getCurrentWeek();
-      
-    //Load translations
+     
+     
+ }
     
-
-  }
+ public function isCurrentTeam($team) {
+     if($this->teamName==$team) return true;
+     if($this->teamLongName==$team) return true;
+     return false;
+ }
 
  public function getTeamName() {
    return $this->teamName;
@@ -90,12 +97,27 @@ class TabTDataRetrieval
  }
 
 public function getRanking($week) {
-    if($week!=0) $this->weekName = $week;
+    if($week!=0) {
+        $this->weekName = $week;
+    } else {
+        $currentWeek = $this->getCurrentWeek();
+        $this->weekName = $currentWeek==0?'':$currentWeek;
+     }
+
     //Retrieve Division Name through Division Ranking webservice
     $rankingResponse = $this->soapTabT->GetDivisionRanking(
         array('DivisionId'  => $this->divisionId,
               'WeekName' => $this->weekName));
     return $rankingResponse->RankingEntries;
+}
+    
+public function getResults() {
+    $MatchesResponse = $this->soapTabT->GetMatches(
+             array('DivisionId'  => $this->divisionId,
+                 'Club' => $this->clubId,
+                 'Team' => $this->teamLetter));
+    return $MatchesResponse->TeamMatchesEntries;
+    
 }
 
 
@@ -113,28 +135,33 @@ public function getRanking($week) {
   }
 
  private function getCurrentWeek() {
-        $week = 1;
+        $week = 0;
         $currenttime = date('Y-m-d');
-        $weekday = date('N', strtotime($currenttime));
-        $currenttime = strtotime($currenttime . ' - '. $weekday .' days');
-        $date = date('Y-m-d', $currenttime);
-
-    
+      
+        //To avoid that the 'current' week is influenced by preponed games, 
+        //we take the week number of the first game next week and distract 1 number.
+        //If the last game is played already, the highest weeknumber will be used.
+     
+        $daysToAdd = 7 - date('N', strtotime($currenttime));
+        $fromDateTime = strtotime($currenttime . ' + ' . $daysToAdd . ' days');
+        $fromDate = date('Y-m-d', $fromDateTime);
+             
         $MatchesResponse = $this->soapTabT->GetMatches(
              array('DivisionId'  => $this->divisionId,
-				'Club' => $this->clubId,
-				'Team' => trim($this->teamLetter)));
-    
-         foreach ($MatchesResponse->TeamMatchesEntries as $matchEntry) {
-                if($matchEntry->Date < $date) {
-                  $week = $matchEntry->WeekName;
-                } else {
-                    break;
-                }
+                 'YearDateFrom' => $fromDate));
+        $teamMatches = $MatchesResponse->MatchCount;
+        if($teamMatches > 0) {
+            $matchEntry = current($MatchesResponse->TeamMatchesEntries);
+             $week = $matchEntry->WeekName - 1;
+        } else {
+            //No future matches, get all matches
+            $MatchesResponse = $this->soapTabT->GetMatches(
+             array('DivisionId'  => $this->divisionId));
+            $matchEntry = end($MatchesResponse->TeamMatchesEntries);
+            $week = $matchEntry->WeekName;
         }
-
-
-        return $week;
+        
+         return $week;
     }
 }
 

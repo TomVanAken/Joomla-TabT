@@ -34,30 +34,13 @@ class plgContentTabt extends JPlugin
       if (strpos($article->text, '{tabt') === false) {
         return;  // short-circuit plugin activation
       }
-
+    
       //show tabt ranking (tabt for backend compatibility)
       $pattern = '#\{tabt\}(.+,?)+\{/tabt\}#';
       $article->text = preg_replace_callback($pattern,
-      array($this, 'getRanking'),
+      array($this, 'getTabt'),
       $article->text,
       -1);
-
-      //show tabt ranking
-      $pattern = '#\{tabt_ranking\}(.+,?)+\{/tabt\}#';
-      $article->text = preg_replace_callback($pattern,
-      array($this, 'getRanking'),
-      $article->text,
-      -1);
-
-      //show tabt team results
-      $pattern = '#\{tabt_results\}(.+,?)+\{/tabt\}#';
-      $article->text = preg_replace_callback($pattern,
-      array($this, 'getResults'),
-      $article->text,
-      -1);
-
-
-
 
 
     } catch (Exception $e) {
@@ -69,28 +52,23 @@ class plgContentTabt extends JPlugin
     }
   }
 
-
-
-  private function getResults($request) {
-    $replacement = "";
-
-    //reinitialize
-    $this->init();
-
-    //get tabt article parameters
-    $this->setParameters($request[1]);
-
-  }
-
-  private function getRanking($request) {
+  private function getTabt($request) {
     //get tabt article parameters
     $params = $this->getRequestParameters($request[1]);
     $fed=array_key_exists("fed", $params )?$params["fed"]:$this->federatie;
     $club=array_key_exists("clubId", $params)?$params["clubId"]:$this->clubId;
     $team=array_key_exists("team", $params)?$params["team"]:"A";
     $week=array_key_exists("week", $params)?$params["week"]:0;
+    $division=array_key_exists("div", $params)?$params["div"]:"1";
+    $type=array_key_exists("type", $params)?$params["type"]:"ranking";
+ 
+    if($type=="result") {
+        return $this->helper->getResults($fed, $club, $division, $team, false);    
+    } else {
+        return $this->helper->getRanking($fed, $club, $division, $team, $week); 
+    }
 
-    return $this->helper->getRanking($fed, $club, $team, $week); 
+      
   }
 
   private function getRequestParameters($pattern) {

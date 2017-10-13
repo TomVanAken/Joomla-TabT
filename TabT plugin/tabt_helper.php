@@ -28,16 +28,17 @@
 
         }
 
-        public function getRanking($fed, $clubid, $team, $week) {
+        public function getRanking($fed, $clubid, $division, $team, $week) {
         $replacement = "";
         $styles = array("cPos", "cTeam", "cPlayed", "cPoints");
 
-        $tabt = new TabTDataRetrieval($fed, $clubid, $team);
+        $tabt = new TabTDataRetrieval($fed, $clubid);
+        $tabt->initTeam($division, $team);
         $ranking = $tabt->getRanking($week);    
 
         $replacement = '<div class="tabtRanking">';
         $replacement .= '<h3>' . $tabt->getDivisionName() . "</h3>";
-        $replacement .= '<span class="week">'. JText::_("TABT_LABEL_WEEK") . $tabt->getWeek().'</span>';
+        //$replacement .= '<span class="week">'. JText::_("TABT_LABEL_WEEK") . $tabt->getWeek().'</span>';
 
         $table =  $this->getTableRow(array(JText::_("TABT_HEADER_POSITION"), JText::_("TABT_HEADER_TEAM"), JText::_("TABT_HEADER_PLAYED"), JText::_("TABT_HEADER_POINTS")), $styles, true, "" );
 
@@ -49,7 +50,7 @@
         {
             $row = $row+1;
             $currentTeam = $rankingEntry->Team;
-            $rowStyle = $currentTeam==$myTeam?"myTeam":"";
+            $rowStyle = $tabt->isCurrentTeam($currentTeam)?"myTeam":"";
             $table .= $this->getTableRow(array($rankingEntry->Position,
                    $rankingEntry->Team,
                    $rankingEntry->GamesPlayed,
@@ -65,8 +66,33 @@
 
         }
 
-        public function geResults($fed, $division, $team, $week) {
+        public function getResults($fed, $clubid, $division, $team, $showTitle) {
+            $replacement = "";
+            
+            $tabt = new TabTDataRetrieval($fed, $clubid);
+            $tabt->initTeam($division, $team);
+            $results = $tabt->getResults(); 
+            
+            $stylesHome = array("cTeam home myTeam", "cScore home myTeam", "cScore away", "cTeam away");
+            $stylesAway = array("cTeam home", "cScore home", "cScore away myTeam", "cTeam away myTeam");
+            
+            $replacement = '<div class="tabtCalendar">';
+            if($showTitle==true)$replacement .= '<h3>' . $tabt->getDivisionName() . "</h3>";
 
+            $table="<table>";
+            foreach($results as $resultEntry) {
+                $styles = $tabt->isCurrentTeam($resultEntry->HomeTeam)?$stylesHome:$stylesAway;
+                $score = isset($resultEntry->Score)?explode("-", $resultEntry->Score):array("","");
+                
+                $table .= $this->getTableRow(
+                    array($resultEntry->HomeTeam, $score[0], $score[1], $resultEntry->AwayTeam),
+                    $styles, false, "" );
+                
+            }
+            
+            $table.="</table>";
+            $replacement .= $table . '</div>';
+            return $replacement;
         }
 
 

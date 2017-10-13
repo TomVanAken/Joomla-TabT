@@ -1,5 +1,5 @@
-.tabtRanking .myTeam,
-.tabtCalendar .myTeam {
+.tabtRanking .cTeam.myTeam,
+.tabtCalendar .cTeam.myTeam {
     font-weight: bold;
     color: red;
 }
@@ -39,8 +39,14 @@ div.tabtRanking {
     text-align: right;
 }
 
-.tabtRanking table {
+.tabtRanking table,
+.tabtCalendar table {
     font-size: 1.1em;
+}
+
+.tabtCalendar .cScore {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .tabtRanking th,
@@ -52,4 +58,8 @@ div.tabtRanking {
 .tabtRanking .week {
     font-weight: bold;
     color: darkslategrey;
+}
+
+.tabtCalendar .cTeam.home {
+    text-align: right;
 }
