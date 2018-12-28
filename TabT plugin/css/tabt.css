@@ -1,4 +1,4 @@
-.tabtRanking .cTeam.myTeam,
+.tabtRanking tr.myTeam,
 .tabtCalendar .cTeam.myTeam {
     font-weight: bold;
     color: red;

@@ -71,9 +71,9 @@ class TabTDataRetrieval
  }
     
  public function isCurrentTeam($team) {
-     if($this->teamName==$team) return true;
-     if($this->teamLongName==$team) return true;
-     return false;
+     $returnval = $this->teamName==$team;
+     $returnval = $returnval || $this->teamLongName==$team;
+     return $returnval;
  }
 
  public function getTeamName() {
